@@ -1,105 +1,109 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
   View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  ListRenderItem,
+  Alert,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
+// Define the shape of the data
+interface Blog {
+  content: React.ReactNode;
+  _id: any;
+  id: number;
   title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+  body: string;
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App: React.FC = () => {
+  const [data, setData] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        'https://techlog-tech-585621892456.herokuapp.com/api/v1/blogs',
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const result: Blog[] = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Akash">codeguyakash</Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+  const renderItem: ListRenderItem<Blog> = ({item}) => (
+    <View style={styles.item}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.body}>{item.content}</Text>
+    </View>
   );
-}
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Blogs</Text>
+      <FlatList
+        data={data}
+        keyExtractor={item => item._id?.toString()}
+        renderItem={renderItem}
+      />
+      <Text style={{textAlign: 'center'}}>@codeguyakash</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: 'black',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionDescription: {
-    marginTop: 8,
+  heading: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 20,
+  },
+  item: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#212121',
+    paddingVertical: 10,
+  },
+  title: {
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'justify',
   },
-  highlight: {
-    fontWeight: '700',
+  body: {
+    fontSize: 12,
+    color: 'white',
+    textAlign: 'justify',
   },
 });
 
