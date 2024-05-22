@@ -22,8 +22,8 @@ yarn start
 
 Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
 
-### Download App 👇
-<a href="./android/app/build/outputs/apk/debug/app-debug.apk" download>click here</a>
+### Build
+https://chatgpt.com/share/0c699d7e-e29d-4281-97e1-56ff83fe28fc
 
 
 ```bash
